@@ -8,8 +8,15 @@ if __name__ == '__main__':
     matrix_gen = MatrixGenerator('D:\\test.txt')
     matrix = matrix_gen.gen()
 
-    ga = GeneticAlgorithm(matrix, 200, 500, 0, 0.2)
-    ga.init()
-    ga.start()
-    ga.print()
-
+    print("tour")
+    for _ in range(25):
+        ga = GeneticAlgorithm(matrix, 200, 500, 1, 0.2)
+        ga.init()
+        ga.start()
+        ga.print()
+    print("rws")
+    for _ in range(25):
+        ga = GeneticAlgorithm(matrix, 200, 500, 0, 0.2)
+        ga.init()
+        ga.start()
+        ga.print()

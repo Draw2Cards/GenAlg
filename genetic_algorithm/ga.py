@@ -3,6 +3,7 @@ import time
 
 from genetic_algorithm.fitness import fitness
 from genetic_algorithm.roulette_wheel_selection import RouletteWheelSelection
+from genetic_algorithm.tournament_selection import TournamentSelection
 
 
 class GeneticAlgorithm:
@@ -28,6 +29,8 @@ class GeneticAlgorithm:
 
         if self.selection_algorithm == 0:
             self.selection_algorithm = RouletteWheelSelection
+        elif self.selection_algorithm == 1:
+            self.selection_algorithm = TournamentSelection
 
     def calc_max_vertex_degree(self):
         max_vertex_degree = 0
@@ -43,6 +46,7 @@ class GeneticAlgorithm:
     def start(self):
         start_time = time.time()
         solution_found = True
+
         while solution_found and self.colors_pool_size > 0:
             self.generate_initial_population()
             while True:
@@ -50,16 +54,12 @@ class GeneticAlgorithm:
                 self.crossover()
                 self.mutation()
                 self.compute_fitness()
-
                 if self.best_fitness == 0 or self.cur_generation == self.max_generations:
                     break
 
-            print("Using ", self.colors_pool_size, " colors : ")
-            print("Generation: ", self.cur_generation, "Best_Fitness: ",
-                  self.best_fitness, "Individual: ", self.fittest_individual)
             if self.best_fitness != 0:
                 solution_found = False
-                print("Graph is ", self.colors_pool_size + 1, " colorable")
+                self.colors_pool_size += 1
             else:
                 self.colors_pool_size -= 1
         self.elapsed_time = time.time() - start_time
@@ -78,7 +78,7 @@ class GeneticAlgorithm:
 
     def crossover(self):
         random.shuffle(self.population)
-        for i in range(1, self.population_size - 1, 2):
+        for i in range(1, self.population_size, 2):
             self.new_population.extend(self.generate_children([self.population[i - 1], self.population[i]]))
 
     def generate_children(self, parents):
@@ -118,5 +118,6 @@ class GeneticAlgorithm:
 
     def print(self):
         print('_________')
+        print(self.colors_pool_size)
         print(self.elapsed_time)
         print('_________')
