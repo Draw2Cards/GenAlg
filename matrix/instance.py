@@ -4,7 +4,7 @@ class Instance:
         self.matrix = matrix
 
     def gen_output(self):
-        f = open('test.txt', 'w')
+        f = open('output.txt', 'w')
         f.write(str(self.vertex_num) + '\n')
         for row_index, row in enumerate(self.matrix):
             for col_index, val in enumerate(row):
