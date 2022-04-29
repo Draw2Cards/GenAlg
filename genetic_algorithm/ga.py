@@ -31,6 +31,7 @@ class GeneticAlgorithm:
             self.selection_algorithm = RouletteWheelSelection
         elif self.selection_algorithm == 1:
             self.selection_algorithm = TournamentSelection
+        print(f'init colors pool size: {self.colors_pool_size}')
 
     def calc_max_vertex_degree(self):
         max_vertex_degree = 0
@@ -54,6 +55,7 @@ class GeneticAlgorithm:
                 self.crossover()
                 self.mutation()
                 self.compute_fitness()
+                print(f'T: {time.time() - start_time} -  current generation: {self.cur_generation}/{self.max_generations} (best fitness: {self.best_fitness})')
                 if self.best_fitness == 0 or self.cur_generation == self.max_generations:
                     break
 
@@ -62,6 +64,7 @@ class GeneticAlgorithm:
                 self.colors_pool_size += 1
             else:
                 self.colors_pool_size -= 1
+                print(f'current colors pool size: {self.colors_pool_size}')
         self.elapsed_time = time.time() - start_time
 
     def generate_initial_population(self):
