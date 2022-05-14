@@ -23,6 +23,6 @@ class RouletteWheelSelection(SelectionAlgorith):
             roulette = random.uniform(0, 1)
             for j in range(len(population)):
                 if roulette <= cumulative_fitness[j]:
-                    new_population.append([population[j], fitness(population[j], matrix)])
+                    new_population.append(population[j])
                     break
         return new_population
