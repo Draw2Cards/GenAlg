@@ -14,28 +14,30 @@ def find_best_fitness(population):
             break
         if i[1] < best_fitness:
             best_fitness = i[1]
-    print(best_fitness)
     return best_fitness
 
 
 def combine(old_pop, new_pop):
+    new_pos = 0
     new_best_fitness = new_pop[0]
-    for i in new_pop:
+    for cur_pos, i in enumerate(new_pop):
         if new_best_fitness[1] == 0:
+            new_pos = cur_pos
             break
         if i[1] < new_best_fitness[1]:
             new_best_fitness = i
+            new_pos = cur_pos
 
-    pos = 0
+    old_pos = 0
     old_least_fitness = old_pop[0]
     for cur_pos, i in enumerate(old_pop):
         if i[1] > old_least_fitness[1]:
             old_least_fitness = i
-            pos = cur_pos
+            old_pos = cur_pos
 
     if new_best_fitness[1] < old_least_fitness[1]:
-        print(f'{old_least_fitness[1]}->{new_best_fitness[1]}')
-        old_pop[pos] = new_best_fitness
+        # print(f'{old_least_fitness[1]}->{new_best_fitness[1]}')
+        old_pop[old_pos] = new_pop.pop(new_pos)
 
 
 class GeneticAlgorithm:
@@ -66,7 +68,7 @@ class GeneticAlgorithm:
         elif self.selection_algorithm == 1:
             self.selection_algorithm = TournamentSelection
 
-        self.file_output = open("le450_5a.csv", "a")
+        self.file_output = open("gc_1000.csv", "a")
 
     def calc_max_vertex_degree(self):
         max_vertex_degree = 0
@@ -94,13 +96,16 @@ class GeneticAlgorithm:
                 self.selection()
                 self.new_population = self.crossover(self.population_for_crossover)
                 self.mutation(self.population)
-                combine(self.population, self.new_population)
+                self.mutation(self.new_population)
+                for i in range(len(self.population)):
+                    combine(self.population, self.new_population)
                 self.best_fitness = find_best_fitness(self.population)
 
                 self.file_output.write(f'{time.time() - start_time};{self.best_fitness};{self.colors_pool_size}\n')
                 print(f'T: {time.time() - start_time} - '
                       f'current generation: {self.cur_generation}/{self.max_generations} '
-                      f'(best fitness: {self.best_fitness})')
+                      f'(best fitness: {self.best_fitness})'
+                      f'(current colors pool size: {self.colors_pool_size})')
                 if self.best_fitness == 0 or self.cur_generation == self.max_generations:
                     break
 
@@ -164,19 +169,19 @@ class GeneticAlgorithm:
         for i_index, i in enumerate(population):
             rand = random.uniform(0, 1)
             if self.mut_probability > rand:
-                ind_index = random.randint(0, len(i) - 1)
-                uniq_list = [*range(1, self.colors_pool_size + 1)]
-                result = False
-                for row_index, row in enumerate(self.matrix[ind_index]):
-                    if row_index > ind_index:
+                for ind_index in range(len(i[0])):
+                    uniq_list = [*range(1, self.colors_pool_size + 1)]
+                    uniq_list.remove(i[0][ind_index])
+                    for row_index, row in enumerate(self.matrix[ind_index]):
                         if row == 1:
                             if i[0][row_index] in uniq_list:
                                 uniq_list.remove(i[0][row_index])
-                            if i[0][ind_index] == i[0][row_index]:
-                                result = True
-                if result and len(uniq_list) > 0:
-                    i[0][ind_index] = random.choice(uniq_list)
-                    i[1] = fitness(i[0], self.matrix)
+                    if len(uniq_list) > 0:
+                        i[0][ind_index] = random.choice(uniq_list)
+                old_fitness = i[1]
+                i[1] = fitness(i[0], self.matrix)
+                if old_fitness < i[1]:
+                    print('error')
 
     def selection(self):
         self.population_for_crossover = self.selection_algorithm().run(self.population, self.matrix)
