@@ -5,9 +5,11 @@ from matrix.matrix_generator import MatrixGenerator
 
 if __name__ == '__main__':
 
-    matrix_gen = MatrixGenerator('D:\\Graphs\\gc_1000.txt')
+    file_name = 'miles250.txt'
+
+    matrix_gen = MatrixGenerator('D:\\Graphs\\' + file_name)
     matrix = matrix_gen.gen()
-    ga = GeneticAlgorithm(matrix, 500, 2000, 0, 0.2)
+    ga = GeneticAlgorithm(matrix, 500, 500, 0, 0.2, file_name, 300)
     ga.init()
     ga.start()
     ga.print()

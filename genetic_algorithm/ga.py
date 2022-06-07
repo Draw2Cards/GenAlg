@@ -8,12 +8,12 @@ from other.greedy import Greedy
 
 
 def find_best_fitness(population):
-    best_fitness = population[0][1]
+    best_fitness = population[0]
     for i in population:
         if best_fitness == 0:
             break
-        if i[1] < best_fitness:
-            best_fitness = i[1]
+        if i[1] < best_fitness[1]:
+            best_fitness
     return best_fitness
 
 
@@ -41,21 +41,25 @@ def combine(old_pop, new_pop):
 
 
 class GeneticAlgorithm:
-    def __init__(self, matrix, population_size, max_generations, selection_algorithm, mut_probability):
+    def __init__(self, matrix, population_size, max_generations,
+                 selection_algorithm, mut_probability, file_name, stop_after):
         self.matrix = matrix
         self.population_size = population_size
         self.max_generations = max_generations
         self.selection_algorithm = selection_algorithm
         self.mut_probability = mut_probability
+        self.file_name = file_name
+        self.stop_after = stop_after
 
         self.elapsed_time = 0
-        self.best_fitness = -1
+        self.best_fitness = None
         self.new_population = []
         self.population_for_crossover = []
         self.cur_generation = 0
         self.colors_pool_size = 0
         self.vertex_num = 0
         self.population = []
+        self.current_time = 0
 
         self.file_output = None
 
@@ -68,7 +72,7 @@ class GeneticAlgorithm:
         elif self.selection_algorithm == 1:
             self.selection_algorithm = TournamentSelection
 
-        self.file_output = open("gc_1000.csv", "a")
+        self.file_output = open(self.file_name, "a")
 
     def calc_max_vertex_degree(self):
         max_vertex_degree = 0
@@ -101,15 +105,22 @@ class GeneticAlgorithm:
                     combine(self.population, self.new_population)
                 self.best_fitness = find_best_fitness(self.population)
 
-                self.file_output.write(f'{time.time() - start_time};{self.best_fitness};{self.colors_pool_size}\n')
-                print(f'T: {time.time() - start_time} - '
+                self.current_time = time.time() - start_time
+                self.file_output.write(f'{self.current_time};'
+                                       f'{self.best_fitness[1]};'
+                                       f'{self.best_fitness[0]};'
+                                       f'{self.colors_pool_size}\n')
+                print(f'T: {self.current_time} - '
                       f'current generation: {self.cur_generation}/{self.max_generations} '
-                      f'(best fitness: {self.best_fitness})'
+                      f'(best fitness: {self.best_fitness[1]})'
+                      f'(best fitness: {self.best_fitness[0]})'
                       f'(current colors pool size: {self.colors_pool_size})')
-                if self.best_fitness == 0 or self.cur_generation == self.max_generations:
+                if self.best_fitness[1] == 0 or \
+                        self.cur_generation == self.max_generations \
+                        or self.current_time >= self.stop_after:
                     break
 
-            if self.best_fitness != 0:
+            if self.best_fitness[1] != 0:
                 solution_found = False
                 self.colors_pool_size += 1
             else:
@@ -180,8 +191,6 @@ class GeneticAlgorithm:
                         i[0][ind_index] = random.choice(uniq_list)
                 old_fitness = i[1]
                 i[1] = fitness(i[0], self.matrix)
-                if old_fitness < i[1]:
-                    print('error')
 
     def selection(self):
         self.population_for_crossover = self.selection_algorithm().run(self.population, self.matrix)
